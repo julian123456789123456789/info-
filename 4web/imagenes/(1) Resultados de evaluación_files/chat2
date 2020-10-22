@@ -1,0 +1,756 @@
+/* Error de minimización. Devolviendo el contenido no minimizado.
+(669,16-17): run-time error JS1005: Expected '(': {
+(672,5-6): run-time error JS1006: Expected ')': }
+(672,5-6): run-time error JS1008: Expected '{': }
+(744,43): run-time error JS1004: Expected ';'
+(744,43-44): run-time error JS1195: Expected expression: )
+(664,19-30): run-time error JS1301: End of file encountered before function is properly closed: function ()
+(745,1): run-time error JS1107: Expecting more source characters
+(1,2-19): run-time error JS1301: End of file encountered before function is properly closed: function (app, $)
+(745,1): run-time error JS1107: Expecting more source characters
+(745,1): run-time error JS1006: Expected ')'
+ */
+(function (app, $) {
+    var model;
+
+    var UrlCheckConversaciones = '/Conversaciones/Sync/Conversaciones';
+    var UrlCheckMensajes = '/Conversaciones/Sync/Mensajes';
+    var UrlNuevoMensaje = '/Conversaciones/Mensaje/Nuevo';
+    var UrlSeleccionarChat = '/Conversaciones/ChatActual/Seleccionar';
+    var UrlBusqueda = '/Conversaciones/Personas/Buscar';
+    var UrlNuevaConversacion = '/Conversaciones/Conversacion/Nueva';
+    var UrlNotificarVistos = '/Conversaciones/Mensajes/Vistos/Notificar';
+    var intervalConversaciones, intervalMensajes, intervalLocalStorage, intervalTime;
+    var chatHub;
+    var persona, titlePage, pendienteNotificar;
+    var t = null;
+
+    var isTabActive = true;
+    window.onfocus = function () {
+        isTabActive = true;
+        if (pendienteNotificar) {
+            if (model.ChatActual) {
+                model.ChatActual.NotificarVistos();
+                var conversacionExistente = ko.utils.arrayFirst(model.Conversaciones(), function (con) {
+                    return con.con_consecutivoP() == model.ChatActual.con_consecutivoP();
+                });
+
+                conversacionExistente.mensajes_sin_ver(0);
+                model.RefreshConversacionesCount();
+            }
+            pendienteNotificar = false;
+        }
+    };
+    window.onblur = function () {
+        isTabActive = false;
+    };
+
+    app.chat = app.chat || {};
+
+    var ConversacionFormModel = function (data) {
+        var self = this;
+        var mapping = {
+            'IsOpen': {
+                create: function (options) {
+                    return ko.observable(false);
+                }
+            },
+            'currentTime': {
+                create: function (options) {
+                    return ko.observable(moment(options.data));
+                }
+            },
+            'Conversaciones': {
+                create: function (options) {
+                    return new ConversacionViewModel(options.data, self);
+                }
+            },
+            'ChatActual': {
+                create: function (options) {
+                    return new ConversacionViewModel(options.data, self);
+                }
+            }
+        };
+
+        ko.mapping.fromJS(data, mapping, this);
+
+        self.isFocus = ko.observable(true);
+
+        self.ConversacionesSorter = ko.pureComputed(function () {
+
+            var filter = ko.utils.arrayFilter(self.Conversaciones(), function (item) {
+                return item.conmen_mensaje();
+            });
+
+            return filter.sort(function (left, right) {
+                if (left.con_fecha_ultima_actualizacion().isAfter(right.con_fecha_ultima_actualizacion())) return -1;
+                if (left.con_fecha_ultima_actualizacion().isBefore(right.con_fecha_ultima_actualizacion())) return 1;
+                return 0;
+            });
+
+        }, self);
+
+        self.checkConversaciones = function () {
+
+            var time = moment();
+
+            if (self.Conversaciones().length > 0) {
+                time = self.ConversacionesSorter()[0].con_fecha_ultima_actualizacion();
+            }
+
+            $.ajax({
+                url: UrlCheckConversaciones,
+                data: { lastSync: jack.toServerDate(time.add(-1, "minutes")), persona: self.CodigoPersona() },
+                type: 'GET',
+                success: function (data) {
+                    $.each(data, function (index, item) {
+
+                        var conversacionExistente = ko.utils.arrayFirst(self.Conversaciones(), function (con) {
+                            return con.con_consecutivoP() == item.con_consecutivoP;
+                        });
+
+                        if (conversacionExistente) {
+                            conversacionExistente.con_fecha_ultima_actualizacion(moment(item.con_fecha_ultima_actualizacion));
+                            conversacionExistente.conmen_mensaje(item.conmen_mensaje);
+                            conversacionExistente.conper_per_nombre_completo_otro(item.conper_per_nombre_completo_otro);
+                            conversacionExistente.mensajes_sin_ver(item.mensajes_sin_ver);
+                        } else {
+                            self.Conversaciones.push(new ConversacionViewModel(item, self));
+                        }
+                    });
+
+                    self.currentTime(moment());
+
+                    self.RefreshConversacionesCount();
+                }
+            });
+        };
+
+        self.SeleccionarChatActual = function (conv) {
+
+            $(".form-loading-mensajes").show();
+
+            $.ajax({
+                url: UrlSeleccionarChat,
+                data: { conversacion: conv.con_consecutivoP(), persona: self.CodigoPersona() },
+                type: 'GET',
+                success: function (data) {
+
+                    var mapping = {
+                        'ChatActual': {
+                            create: function (options) {
+                                return new ConversacionViewModel(options.data, self);
+                            }
+                        }
+                    };
+
+                    var result = ko.mapping.fromJS({ 'ChatActual': data }, mapping);
+
+                    self.ChatActual.conper_consecutivoP(result.ChatActual.conper_consecutivoP());
+                    self.ChatActual.con_consecutivoP(result.ChatActual.con_consecutivoP());
+                    self.ChatActual.con_fecha_ultima_actualizacion(result.ChatActual.con_fecha_ultima_actualizacion());
+                    self.ChatActual.conper_per_nombre_completo_otro(result.ChatActual.conper_per_nombre_completo_otro());
+                    self.ChatActual.relaciones(result.ChatActual.personas_relacionadas() || result.ChatActual.asignaturas_relacionadas());
+                    self.ChatActual.conper_per_codigo_otro(result.ChatActual.conper_per_codigo_otro());
+                    self.ChatActual.Mensajes(result.ChatActual.Mensajes());
+
+                    $('.chat-list').scrollTop($('.chat-list')[0].scrollHeight);
+
+                    model.isFocus(true);
+
+                    self.RefreshConversacionesCount();
+                },
+                complete: function () {
+                    $(".form-loading-mensajes").hide();
+                }
+            });
+        }
+
+        self.ToLocalStorage = function () {
+
+            var modeloJS = {
+                Conversaciones: [],
+                ChatActual: self.ChatActual.ToJson(),
+                currentTime: self.currentTime(),
+                CodigoPersona: self.CodigoPersona(),
+                Rol: self.Rol(),
+                IsOpen: self.IsOpen(),
+                fromLocalStorage: true
+            };
+
+            $.each(self.Conversaciones(), function (index, item) {
+                modeloJS.Conversaciones.push(item.ToJson());
+            });
+
+            localStorage.setItem("info-chat-" + persona, JSON.stringify({ data: modeloJS, expired: moment().add(30, "minutes") }));
+        };
+
+        self.InitIntervals = function () {
+
+            intervalConversaciones = setInterval(function () {
+                self.checkConversaciones();
+            }, 30000);
+
+            intervalMensajes = setInterval(function () {
+                self.ChatActual.checkMensajes();
+            }, 25000);
+
+            intervalTime = setInterval(function () {
+                self.currentTime(moment());
+            }, 10000);
+
+            intervalLocalStorage = setInterval(function () {
+                console.log('UPDATE!!!');
+                self.ToLocalStorage();
+            }, 10000);
+
+        }
+
+        self.stopIntervals = function () {
+            clearInterval(intervalConversaciones);
+            clearInterval(intervalTime);
+            clearInterval(intervalLocalStorage);
+            clearInterval(intervalMensajes);
+        }
+
+        self.MostrarNoBusqueda = ko.observable(true);
+        self.Buscando = ko.observable(false);
+
+        self.mostrarBusqueda = function () {
+            self.Buscando(true);
+            $("#filtroTexto").val('');
+            $("#filtroTexto").trigger("focus");
+            $(".conversaciones-buscar").empty();
+            self.busquedaPersonas(null, 1);
+        }
+
+        self.ocultarBusqueda = function () {
+            self.Buscando(false);
+        }
+
+        var valorAnterior;
+        self.busquedaPersonas = function (e, init) {
+
+            if ($("#filtroTexto").val() != valorAnterior) {
+                valorAnterior = $("#filtroTexto").val();
+                clearTimeout(t)
+
+                var fnSearch = () => {
+
+                    $(".form-loading-conversacion").show();
+                    $.ajax({
+                        url: UrlBusqueda,
+                        data: { filtroTexto: $("#filtroTexto").val() },
+                        type: 'GET',
+                        success: function (data) {
+                            $(".conversaciones-buscar").html(data);
+                            self.MostrarNoBusqueda(false);
+                            jack.initPlugins($(".conversaciones-buscar"));
+                        },
+                        complete: function () {
+                            $(".form-loading-conversacion").hide();
+                        }
+                    });
+                };
+
+                if (init === 1 && (self.Rol() === '1' || self.Rol() === '4')) {
+                    fnSearch();
+                } else {
+                    t = setTimeout(function () {
+                        if ($("#filtroTexto").val().length >= 2) {
+                            fnSearch();
+                        } else {
+                            self.MostrarNoBusqueda(true);
+                        }
+                    }, 800);
+                }
+            }
+        };
+
+        self.IniciarNuevaConversacion = function (persona) {
+            $.ajax({
+                url: UrlNuevaConversacion,
+                data: { personaSeleccionada: persona },
+                type: 'POST',
+                success: function (data) {
+                    self.SeleccionarChatActual({ con_consecutivoP: () => { return data } });
+                }
+            });
+        }
+
+        self.ChatActivo = ko.computed(function () {
+            return self.ChatActual.conper_consecutivoP();
+        }, self);
+
+        self.RefreshConversacionesCount = function () {
+
+            var conversacionesPendientes = ko.utils.arrayFilter(self.Conversaciones(), function (item) {
+                return item.TieneMensajesPendientes();
+            });
+
+            $(".open-chat .notification-icon").attr("data-count", conversacionesPendientes.length);
+            document.title = (conversacionesPendientes.length > 0 ? "(" + conversacionesPendientes.length + ") " : " ") + titlePage;
+        }
+
+        self.RefreshConversacionesCount();
+
+        self.setAutoScroll = function () {
+            $('.chat-list').scrollTop($('.chat-list')[0].scrollHeight);
+        }
+
+    };
+
+    var ConversacionViewModel = function (data, parent) {
+        var self = this;
+
+        parent = parent || model;
+
+        var mapping = {
+            'Mensajes': {
+                create: function (options) {
+                    return new MensajeViewModel(options.data, parent);
+                }
+            },
+            'con_fecha_ultima_actualizacion': {
+                create: function (options) {
+                    return ko.observable(moment(options.data));
+                }
+            }
+        };
+
+        ko.mapping.fromJS(data, mapping, this);
+
+        self.NuevoMensaje = ko.observable();
+
+        self.NewMensaje = function (data) {
+            self.Mensajes.push(new MensajeViewModel(data, parent));
+            model.setAutoScroll();
+        };
+
+        self.AddMensaje = function () {
+
+            if (self.NuevoMensaje()) {
+
+                var tempId = Math.floor(Math.random() * 10000000);
+                var time = moment();
+
+                //REVISAR RENDIMIENTO
+                var data2 = {
+                    conmen_consecutivoP: tempId,
+                    con_consecutivoP: self.con_consecutivoP(),
+                    conmen_fecha: time,
+                    conmen_mensaje: self.NuevoMensaje(),
+                    conper_per_codigo: parent.CodigoPersona(),
+                    estado_envio: 1,
+                    conmenvis_fecha_visualizacion: null
+                };
+
+                var lastMsg = new MensajeViewModel(data2, parent);
+
+                self.Mensajes.push(lastMsg);
+                self.NuevoMensaje('');
+                model.isFocus(true);
+
+                data2.conmen_fecha = jack.toServerDate(time, "POST");
+                data2.conmen_consecutivoP = null;
+
+                model.setAutoScroll();
+
+                $.ajax({
+                    url: UrlNuevoMensaje,
+                    data: {
+                        mensaje: data2, personaConversacion:
+                        self.conper_consecutivoP(),
+                        persona: parent.CodigoPersona(),
+                        personaNot: self.conper_per_codigo_otro(),
+                        ignoreSpamAttribute: true
+                    },
+                    type: 'POST',
+                    success: function (data) {
+
+                        lastMsg.conmen_consecutivoP(data.conmen_consecutivoP);
+                        lastMsg.estado_envio(2);
+
+                        var conversacionExistente = ko.utils.arrayFirst(parent.Conversaciones(), function (con) {
+                            return con.con_consecutivoP() == self.con_consecutivoP();
+                        });
+
+                        if (conversacionExistente) {
+
+                            //conversacionExistente.con_fecha_ultima_actualizacion(moment(item.con_fecha_ultima_actualizacion));
+                            //conversacionExistente.ultimo_mensaje(item.ultimo_mensaje);
+                            //conversacionExistente.nombre_persona_ultimo_mensaje(item.nombre_persona_ultimo_mensaje);
+
+                        } else {
+                            parent.Conversaciones.push(new ConversacionViewModel({
+                                con_consecutivoP: self.con_consecutivoP(),
+                                con_fecha_ultima_actualizacion: moment(data.men_fecha),
+                                conper_per_codigo_otro: self.conper_per_codigo_otro(),
+                                mensajes_sin_ver: 0,
+                                conper_per_nombre_completo_otro: self.conper_per_nombre_completo_otro ? self.conper_per_nombre_completo_otro() : "",
+                                relaciones: self.personas_relacionadas() || self.asignaturas_relacionadas(),
+                                conmen_mensaje: data.conmen_mensaje,
+                                Mensajes: []
+                            }, parent));
+
+                            model.ocultarBusqueda();
+                        }
+                    },
+                    error: function () {
+                        lastMsg.estado_envio(3);
+                    }
+                });
+
+            }
+        };
+
+        self.CheckEnter = function (t, e) {
+            if (e.keyCode == 13 && !e.shiftKey) {
+                $(e.target).blur();
+                self.AddMensaje();
+                return false;
+            }
+
+            return true;
+        }
+
+        self.MensajesSorter = ko.computed(function () {
+
+            return self.Mensajes().sort(function (left, right) {
+                if (left.conmen_fecha().isAfter(right.conmen_fecha())) return 1;
+                if (left.conmen_fecha().isBefore(right.conmen_fecha())) return -1;
+
+                //if (left.conmen_consecutivoP() > right.conmen_consecutivoP()) return 1;
+                //if (left.conmen_consecutivoP() < right.conmen_consecutivoP()) return -1;
+                return 0;
+            });
+
+        }, self);
+
+        self.TiempoUltimoMensaje = ko.computed(function () {
+
+            return self.con_fecha_ultima_actualizacion().format("hh:mm a");
+
+            //return jack.humanize(self.con_fecha_ultima_actualizacion(), parent.currentTime())
+        }, this);
+
+        self.lastSyncMensajes = ko.observable(null);
+
+        self.checkMensajes = function () {
+
+
+            var time = self.lastSyncMensajes();
+
+            if (!time && self.MensajesSorter().length > 0) {
+
+                var lastMensaje = self.MensajesSorter()[self.MensajesSorter().length - 1];
+                time = lastMensaje.conmen_fecha();
+            }
+
+            var newTime = moment();
+
+            $.ajax({
+                url: UrlCheckMensajes,
+                data: { conversacion: self.con_consecutivoP(), personaConversacion: self.conper_consecutivoP(), personaNot: self.conper_per_codigo_otro(), lastSync: jack.toServerDate(time || moment()) },
+                type: 'GET',
+                success: function (data) {
+
+                    self.lastSyncMensajes(newTime);
+
+                    var array = Array.from(self.Mensajes(), x => x.conmen_consecutivoP());
+
+                    $.each(data, function (index, item) {
+                        if (item.con_consecutivoP == self.con_consecutivoP()
+                            && array.indexOf(item.conmen_consecutivoP) == -1) {
+                            self.Mensajes.push(new MensajeViewModel(item, parent));
+                        }
+                    });
+                }
+            });
+        };
+
+        self.TieneMensajesPendientes = ko.computed(function () {
+
+            var esActual = parent.ChatActual.con_consecutivoP() == self.con_consecutivoP();
+            var isOpen = parent.IsOpen();
+
+            if (esActual && isOpen && isTabActive) self.mensajes_sin_ver(0);
+
+            return self.mensajes_sin_ver() > 0;
+
+        }, self);
+
+        self.NotificarVistos = function () {
+
+            $.ajax({
+                url: UrlNotificarVistos,
+                data: { conversacion: self.con_consecutivoP(), personaConversacion: self.conper_consecutivoP(), personaNot: self.conper_per_codigo_otro(), ignoreSpamAttribute: true },
+                type: 'POST',
+                success: function (data) {
+                }
+            });
+        }
+
+        self.ToJson = function () {
+
+            var obj = {
+                con_consecutivoP: self.con_consecutivoP(),
+                conper_consecutivoP: self.conper_consecutivoP ? self.conper_consecutivoP() : null,
+                con_fecha_ultima_actualizacion: self.con_fecha_ultima_actualizacion(),
+                conper_per_codigo_otro: self.conper_per_codigo_otro(),
+                relaciones: self.personas_relacionadas() || self.asignaturas_relacionadas(),
+                conper_per_nombre_completo_otro: self.conper_per_nombre_completo_otro ? self.conper_per_nombre_completo_otro() : "",
+                conmen_mensaje: self.conmen_mensaje(),
+                mensajes_sin_ver: self.mensajes_sin_ver(),
+                Mensajes: []
+            };
+
+            $.each(self.Mensajes(), function (index, item) {
+                if (item.estado_envio() != '3')
+                {
+                    obj.Mensajes.push(item.ToJson());
+                }
+            });
+
+            return obj;
+        };
+    };
+
+    var MensajeViewModel = function (data, parent) {
+        var self = this;
+        var mapping = {
+            'conmen_fecha': {
+                create: function (options) {
+                    return ko.observable(moment(options.data));
+                }
+            }
+        };
+
+        ko.mapping.fromJS(data, mapping, this);
+
+        self.MensajePropio = ko.computed(function () {
+            try {
+                return self.conper_per_codigo() == parent.CodigoPersona()
+            } catch (ex) {
+                //genera error en los mensajes del listado de conversaciones
+            }
+        }, this);
+
+        self.TiempoMensaje = ko.computed(function () {
+            try {
+
+                var time = parent.currentTime();
+
+                if (self.conmen_fecha() > parent.currentTime()) {
+                    time = moment();
+                }
+
+                return self.conmen_fecha().format("hh:mm a");
+                //return jack.humanize(self.conmen_fecha(), time)
+            } catch (ex) {
+                //genera error en los mensajes del listado de conversaciones
+            }
+        }, this);
+
+        self.EstadoMensaje = ko.computed(function () {
+
+            var style = "fa fa-check"; //No hay estado o es = '2'
+
+            if (self.conmenvis_fecha_visualizacion()) style = "fa fa-check shown";
+            else if (self.estado_envio() == '1') style = "fa fa-clock-o";
+            else if (self.estado_envio() == '3') style = "fa fa-times";
+            return style;
+
+        }, self);
+
+        self.DateMensaje = ko.computed(function () {
+
+            if (self.conmen_fecha().format('L') == moment().format('L')) {
+                return "HOY";
+            }
+
+            if (self.conmen_fecha().format('L') == moment().add(-1, 'days').format('L')) {
+                return "AYER";
+            }
+
+            return self.conmen_fecha().format('DD MMMM YYYY').toUpperCase()
+        }, self);
+
+        self.ToJson = function () {
+
+            var obj = {
+                conmen_consecutivoP: self.conmen_consecutivoP(),
+                conmen_mensaje: self.conmen_mensaje(),
+                conmen_fecha: self.conmen_fecha(),
+                conper_per_codigo: self.conper_per_codigo(),
+                conmenvis_fecha_visualizacion: self.conmenvis_fecha_visualizacion(),
+                estado_envio: self.estado_envio()
+            };
+
+            return obj;
+        };
+
+    };
+
+    var timer;
+
+    var addNewConversation = function (msg) {
+
+        if (model.ChatActual && model.ChatActual.con_consecutivoP() == msg.con_consecutivoP) {
+            model.ChatActual.NewMensaje(msg);
+
+            if (model.IsOpen()) {
+                //revisamos que si este el tab activo para marcar como visto
+                if (isTabActive) {
+                    model.ChatActual.NotificarVistos();
+                } else {
+                    pendienteNotificar = true;
+                }
+            }
+        }
+
+        var conversacionExistente = ko.utils.arrayFirst(model.Conversaciones(), function (con) {
+            return con.con_consecutivoP() == msg.con_consecutivoP;
+        });
+
+        if (conversacionExistente) {
+            conversacionExistente.con_fecha_ultima_actualizacion(moment(msg.conmen_fecha));
+            conversacionExistente.conmen_mensaje(msg.conmen_mensaje);
+            conversacionExistente.mensajes_sin_ver(conversacionExistente.mensajes_sin_ver() + 1);
+            model.RefreshConversacionesCount();
+        }
+
+        model.checkConversaciones();
+
+    };
+
+    var showAllMsg = function (id) {
+
+        if (model.ChatActual && model.ChatActual.con_consecutivoP() == id) {
+            ko.utils.arrayForEach(model.ChatActual.Mensajes(), function (item) {
+                if (!item.conmenvis_fecha_visualizacion()) {
+                    item.conmenvis_fecha_visualizacion(moment());
+                }
+            });
+        }
+    };
+
+    var initInfo = function () {
+        var initData = (data) => {
+            var form = $("#modal-chat");
+            model = new ConversacionFormModel(data);
+
+            ko.applyBindings(model, form[0]);
+        };
+
+        var useLocalStorage = false;
+
+        if (localStorage.getItem("info-chat-" + persona)) {
+
+            try {
+                var infoLocalStorage = JSON.parse(localStorage.getItem("info-chat-" + persona));
+
+                if (moment(infoLocalStorage.expired).isAfter(moment())) {
+                    initData(infoLocalStorage.data, 5);
+                    useLocalStorage = true;
+                    model.checkConversaciones();
+                }
+            } catch (ex) {
+                useLocalStorage = false;
+                ko.cleanNode($("#modal-chat")[0]);
+            }
+
+        }
+
+        if (!useLocalStorage) {
+            $.ajax({
+                url: '/Conversaciones/GetInfo',
+                type: 'GET',
+                success: function (data) {
+                    initData(data);
+                }
+            });
+        }
+    };
+
+    var initHub = function () {
+        try {
+            chatHub = $.connection.notificationsHub;
+            chatHub.client.nuevoMensaje = addNewConversation;
+            chatHub.client.todoVisto = showAllMsg;
+        } catch{
+
+        }
+    };
+
+    var init = function () {
+        app.knockoutUtils.initValidation();
+        initHub();
+
+        titlePage = document.title;
+
+        $("#modal-chat .modal-body").data("limit-modal", 90);
+
+    };
+    
+    app.chat.open = function () {
+
+        //Si aún no se ha ejecutado el Init
+        if (!model) {
+
+            setTimeout(() => {
+                jack.chat.open();
+            }, 2000);
+
+            return false;
+        }
+
+        model.InitIntervals();
+
+        if (model.fromLocalStorage && model.fromLocalStorage() && model.ChatActual.con_consecutivoP()) {
+            model.fromLocalStorage(false)
+            console.log('load sms');
+            model.ChatActual.checkMensajes();
+        }
+
+        $("#modal-chat").modal({ backdrop: 'static', keyboard: false });
+        jack.initPlugins("#modal-chat");
+        jack.setModalHeight("#modal-chat");
+
+        $("#modal-chat").one("shown.bs.modal", function () {
+
+            if (model.ChatActual.con_consecutivoP()) {
+
+                var conversacionExistente = ko.utils.arrayFirst(model.Conversaciones(), function (con) {
+                    return con.con_consecutivoP() == model.ChatActual.con_consecutivoP();
+                });
+
+                if (conversacionExistente && conversacionExistente.mensajes_sin_ver() > 0) {
+                    model.ChatActual.NotificarVistos();
+                }
+            }
+
+            model.IsOpen(true);
+            model.RefreshConversacionesCount();
+            model.setAutoScroll();
+        });
+
+        $("#modal-chat").one("hidden.bs.modal", function () {
+            model.IsOpen(false);
+            model.stopIntervals();
+        });
+    }
+
+    app.chat.NuevaConversacion = function (persona) {
+        model.IniciarNuevaConversacion(persona);
+    }
+
+    app.chat.setPersona = function (id) {
+        persona = id;
+        console.log("PErsona", id);
+        initInfo();
+    }
+
+    init();
+
+}(window.jack = window.jack || {}, jQuery));;

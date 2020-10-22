@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantilla</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <style>
+      
+        #miTitulo{
+            color: darkred;
+            font-size :large
+           
+        h1{
+            color: silver;
+        }
+        p{
+            background-color: snow;
+        }
+        #miImagen{
+            margin: 20px;
+            padding: 10px;
+            width: 600px;
+            border:solid 4px;
+            border-color: royalblue;
+        }
+    
+        body{
+          display: grid;
+  justify-content: center;
+  grid-template-columns: 1fr minmax(400px, 1200px) 1fr;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "nav nav nav"
+    ". content ."
+    "foot foot foot";
+        }
+        nav{
+            grid-area: nav;
+        }
+        main{
+            grid-area: content ;
+        }
+        footer{
+            grid-area: foot;
+            background-color: antiquewhite;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <!-- <a class="navbar-brand" href="#">Navbar</a> -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="index2.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="samsung.html">samsung</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="apple.html">apple</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="oneplus.html">oneplus</a>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+      </nav>
+    <main>
+        <h1>apple</h1>
+        <h2>fundacion </h2>
+        <p>Steve Wozniak y Steve Jobs se conocieron en 1971, cuando un amigo mutuo, Bill Fernández, presentó a Wozniak, quien tenía 21 años de edad, a Jobs, entonces de 15 años. Steve Wozniak, a quien le gustaba que le llamaran Woz, siempre había sentido una gran atracción por la electrónica en general, diseñando desde que era pequeño circuitos en papel para después tratar de optimizarlos al máximo. Dada su afición por la electrónica, Woz "apadrinaba" a otros chicos a los que les gustase el tema, como Bill Fernández o el mismo Steve Jobs.</p>
+        <h3>camino al exito</h3>
+        <p>Con el diseño del primer prototipo del Apple II recién terminado, Apple decidió asistir al festival informático Personal Computing Festival, un nuevo certamen. Allí, la incipiente industria de la microinformática podía mostrar sus progresos y hacer negocio y contactos. En el vuelo a Filadelfia, lugar donde se celebrara en 1976, los fundadores de Apple coincidieron en el avión con los fundadores de Processor Technology y su recién diseñada computadora Sol, coincidencia que tuvo un gran impacto en el futuro inmediato de Apple.</p>
+        <h4>dibersificacion </h4>
+        <p> Mientras que el Apple II conocía un éxito creciente, Apple ya trabaja en sus sucesores. Lisa debía ser una evolución del Apple II, una máquina de transición antes de Lisa y Macintosh que serían una nueva clase de equipos. Para el sucesor del Apple II, Steve Jobs quería una máquina más avanzada aún para contribuir al mercado de la informática de empresa</p>
+        <img src="ime 2.jpg"" alt="">
+        <style>
+          table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+          }
+          
+          td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+          }
+          
+          tr:nth-child(even) {
+            background-color: #dddddd;
+          }
+          </style>
+          </head>
+          <body>
+          
+          
+          
+          <table>
+            <tr>
+              <th>modelo </th>
+              <th>ram</th>
+              <th>rom</th>
+              <th>precio</th>
+            </tr>
+            <tr>
+              <td>iphone 10</td>
+              <td>3gb</td>
+              <td>256gb</td>
+              <td>494 us</td>
+            </tr>
+            <tr>
+              <td>iphone 8</td>
+              <td>2gb</td>
+              <td>64gb</td>
+              <td>305us</td>
+            </tr>
+            <tr>
+              <td>iphone 7</td>
+              <td>2gb</td>
+              <td>32gb</td>
+              <td>176 us </td>
+            </tr>
+            <tr>
+              <td>iphonese 2020</td>
+              <td>3gb</td>
+              <td>256gb</td>
+              <td>676 us</td>
+            </tr>
+       
+          </table>
+          <h2>caracteristicas favorables </h2>
+
+          <ul>
+            <li>buna camara  </li>
+            <li>rapides de actualisaciones del software </li>
+            <li>buena optimisasion de la ram  </li>
+          </ul>  
+          
+        
+    </main>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantilla</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <style>
+      
+        #miTitulo{
+            color: darkred;
+            font-size :large
+           
+        h1{
+            color: silver;
+        }
+        p{
+            background-color: snow;
+        }
+        #miImagen{
+            margin: 20px;
+            padding: 10px;
+            width: 600px;
+            border:solid 4px;
+            border-color: royalblue;
+        }
+    
+        body{
+          display: grid;
+  justify-content: center;
+  grid-template-columns: 1fr minmax(400px, 1200px) 1fr;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "nav nav nav"
+    ". content ."
+    "foot foot foot";
+        }
+        nav{
+            grid-area: nav;
+        }
+        main{
+            grid-area: content ;
+        }
+        footer{
+            grid-area: foot;
+            background-color: antiquewhite;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <!-- <a class="navbar-brand" href="#">Navbar</a> -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="index2.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="samsung.html">samsung</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="apple.html">apple</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="oneplus.html">oneplus</a>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+      </nav>
+    <main>
+        <h1>oneplus</h1>
+        <p>es una empresa relativamente nueva fundaad en el 2014 por el anterior visepresidente de oppo su fama es devida por suss telefonos calidad precio </p>
+        <h2>logros </h2>
+        <p>Entró por primera vez en las 5 mejores marcas de teléfonos inteligentes premium reconocidas por los analistas de la industria de teléfonos inteligentes Counterpoint y tiene un alcanse increible ya que  OnePlus ha lanzado nueve productos emblemáticos que están disponibles en 38 regiones de todo el mundo. La compañía emplea a 1000 personas de 21 países.</p>
+        <p>es conciderada una empresa inovativa gracias a El OnePlus Concept One es el primer teléfono en utilizar la tecnología de vidrio de cambio de color (tecnología de vidrio electrocrómico), lo que le permite cambiar la transparencia y darle una "cámara invisible" y al lanzar la serie OnePlus 7, presentando una pantalla fluida de 90 Hz lisa líder en la industria en OnePlus 7 Pro.   </p>
+        <img src="descarga.jpg" alt="">
+        <style>
+          table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+          }
+          
+          td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+          }
+          
+          tr:nth-child(even) {
+            background-color: #dddddd;
+          }
+          </style>
+          </head>
+          <body>
+          
+          
+          
+          <table>
+            <tr>
+              <th>modelo </th>
+              <th>ram</th>
+              <th>rom</th>
+              <th>precio</th>
+            </tr>
+            <tr>
+              <td>oneplus 5t</td>
+              <td>8gb</td>
+              <td>128gb</td>
+              <td>256 us</td>
+            </tr>
+            <tr>
+              <td>oneplus 6t</td>
+              <td>8gb</td>
+              <td>128gb</td>
+              <td>373us</td>
+            </tr>
+            <tr>
+              <td>oneplus7 pro</td>
+              <td>8gb</td>
+              <td>256gb</td>
+              <td>595 us </td>
+            </tr>
+            <tr>
+              <td>oneplus 7t</td>
+              <td>8gb</td>
+              <td>256gb</td>
+              <td>483 us</td>
+            </tr>
+       
+          </table>
+          <h2>caracteristicas favorables </h2>
+
+          <ul>
+            <li>fluides en pantalla   </li>
+            <li>rapides de actualisaciones del software </li>
+            <li>calidad precio </li>
+          </ul>  
+          
+        
+    </main>
+    
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>

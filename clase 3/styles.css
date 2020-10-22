@@ -1,0 +1,27 @@
+body {
+    background-color: #8d98f59d;
+ }
+ h1 {
+    color: #f5bfbf;
+ }
+ p{
+    font-size: large;
+ }
+ h2 {
+    font-weight: 300;
+ }
+ .tabla {
+    background-color: rgba(255, 0, 0, 0.897);
+ }
+ #importante {
+    background-color: rgba(0, 255, 179, 0.938);
+ }
+ ul li {
+    text-align: center;
+ }
+ a {
+    margin: 20px;
+    border-left: 1px solid #17f00342;
+    padding-left: 10px; 
+ }
+

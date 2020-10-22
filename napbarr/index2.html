@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Plantilla</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <style>
+      
+        #miTitulo{
+            color: rgb(192, 36, 36);
+            font-size :large
+   
+      
+        }
+        p{
+            background-color: rgb(238, 227, 227);
+        }
+        #miImagen{
+            margin: 20px;
+            padding: 10px;
+            width: 600px;
+            border:solid 4px;
+            border-color: rgba(223, 19, 19, 0.377);
+        }
+    
+        body{
+          display: grid;
+  justify-content: center;
+  grid-template-columns: 1fr minmax(400px, 1200px) 1fr;
+  grid-template-rows: auto;
+  grid-template-areas:
+    "nav nav nav"
+    ". content ."
+    "foot foot foot";
+        }
+        nav{
+            grid-area: nav;
+        }
+        main{
+            grid-area: content ;
+        }
+        footer{
+            grid-area: foot;
+            background-color: rgb(90, 78, 78);
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <!-- <a class="navbar-brand" href="#">Navbar</a> -->
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+      
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav mr-auto">
+            <li class="nav-item active">
+              <a class="nav-link" href="index2.html">Home</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="samsung.html">samsung</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="apple.html">apple</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="oneplus.html">oneplus</a>
+            </li>
+          </ul>
+          <form class="form-inline my-2 my-lg-0">
+            <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+          </form>
+        </div>
+      </nav>
+    <main>
+        <h1>smartphone</h1>
+        <p>El primer dispositivo disponible comercialmente que podría denominarse correctamente como "teléfono inteligente" comenzó como un prototipo llamado "Angler" desarrollado por Frank Canova en 1992 mientras estaba en IBM, aunque el término de teléfono de inteligente de aquella época no se aplique a los estándares actuales.</p>
+        <p>La primera integración de señales de datos con telefonía fue conceptualizada por Nikola Tesla en 1909 y fue iniciada por Theodore Paraskevakos a partir de 1968 con su trabajo en la transmisión de datos electrónicos a través de líneas telefónicas</p>
+        <p>En 1999, el proveedor inalámbrico japonés NTT DoCoMo lanzó i-mode, una nueva plataforma de Internet móvil que proporcionaba velocidades de transmisión de datos de hasta 9.6 kilobits por segundo, y acceso a servicios web disponibles a través de la plataforma, como compras en línea. El i-mode de NTT DoCoMo usaba cHTML, un lenguaje que restringía algunos aspectos del HTML tradicional en favor de aumentar la velocidad de datos de los dispositivos. La funcionalidad limitada, las pantallas pequeñas y el ancho de banda limitado permiten que los teléfonos utilicen las velocidades de datos más lentas disponibles. </p>
+        <img src="minimoo64_fractals_01.jpg">
+   
+        <style>
+          table {
+            font-family: arial, sans-serif;
+            border-collapse: collapse;
+            width: 100%;
+          }
+          
+          td, th {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+          }
+          
+          tr:nth-child(even) {
+            background-color: #dddddd;
+          }
+          </style>
+          </head>
+          <body>
+          
+          
+          
+          <table>
+            <tr>
+              <th>marca</th>
+              <th>precio </th>
+              <th>modelo </th>
+            </tr>
+            <tr>
+              <td>apple </td>
+              <td>1218 us </td>
+              <td>iphone 11 pro max</td>
+            </tr>
+            <tr>
+              <td>samsung</td>
+              <td>1766 us </td>
+              <td>galaxy s20 ultra</td>
+            </tr>
+            <tr>
+              <td>oneplus</td>
+              <td>985 us</td>
+              <td>oneplus 8 pro</td>
+            </tr>
+          
+          </table>
+          <h2>otras marcas </h2>
+
+<ul>
+  <li>xiaomi</li>
+  <li>oppo</li>
+  <li>motorola</li>
+  <li>huawei</li>
+  <li>realme</li>
+</ul>  
+
+    </main>
+    <footer>
+        
+    </footer>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+</body>
+</html>
