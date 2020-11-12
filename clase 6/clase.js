@@ -1,5 +1,5 @@
 let compras =  JSON.parse( window.localStorage.getItem("compras"))
- if (compras == null) compras = []
+ if (compras  == null) compras = []
 let lista =document.querySelector("#listamercado")
 //for(let i =0;i< compras.length ; i++)
 //{
